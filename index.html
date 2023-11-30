@@ -1,10 +1,51 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Presentación - Eva Gomez</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Despliegue</title>
 </head>
 <body>
-<p>Hola Mundo</p>
+<form action="/example" method="post">
+    <input type="text" name="name" placeholder="insertar valor" required>
+    <input type="submit" value="Enviar">
+</form>
+<ul id="names"></ul>
+<script defer type="module">
+    async function getNames() {
+        return await fetch('http://localhost:3003/example').then(r => r.json())
+    }
+
+    async function renderNames() {
+        const names = await getNames()
+        const nameList = document.getElementById('names')
+        nameList.innerHTML = ''
+        names.forEach(name => {
+            const li = document.createElement('li')
+            li.innerText = name
+            nameList.appendChild(li)
+        })
+    }
+
+
+    await renderNames()
+
+    const form = document.querySelector('form')
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault()
+        const formData = new FormData(form)
+        const name = formData.get('name')
+        await fetch('http://localhost:3003/example', {
+            method: 'POST',
+            body: JSON.stringify({name}),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        await renderNames()
+        form.reset()
+    })
+</script>
 </body>
 </html>
